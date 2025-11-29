@@ -1,0 +1,2050 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MBTI 性格测试</title>
+    <style>
+        /* 样式保持不变，与原始代码相同 */
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --secondary: #3f37c9;
+            --accent1: #f72585;
+            --accent2: #4cc9f0;
+            --accent3: #7209b7;
+            --success: #4ade80;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --bg: #f8f9fa;
+            --card: #ffffff;
+            --text: #2b2d42;
+            --text-light: #8d99ae;
+            --border: #e9ecef;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --radius: 16px;
+            --radius-sm: 12px;
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--bg);
+            margin: 0;
+            padding: 0;
+            color: var(--text);
+            line-height: 1.5;
+        }
+        
+        .app-container {
+            max-width: 600px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: var(--bg);
+            position: relative;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        .app-header {
+            background: linear-gradient(135deg, var(--accent1) 0%, var(--primary) 30%, var(--accent2) 70%, var(--accent3) 100%);
+            color: white;
+            padding: 20px 20px 30px;
+            border-radius: 0 0 30px 30px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .app-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            background: linear-gradient(135deg, 
+                rgba(247, 37, 133, 0.8) 0%, 
+                rgba(67, 97, 238, 0.8) 30%, 
+                rgba(76, 201, 240, 0.8) 70%, 
+                rgba(114, 9, 183, 0.8) 100%);
+            z-index: 0;
+        }
+        
+        .app-header-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin: 0 0 8px;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            font-size: 15px;
+            opacity: 0.9;
+            margin: 0;
+        }
+        
+        .app-body {
+            padding: 0 20px 100px;
+            margin-top: -20px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .card {
+            background: var(--card);
+            padding: 20px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+        }
+        
+        .card-title {
+            font-size: 18px;
+            margin: 0 0 15px;
+            font-weight: 600;
+            color: var(--text);
+        }
+        
+        .meta {
+            color: var(--text-light);
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        
+        .meta ul {
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+        
+        .meta li {
+            margin-bottom: 6px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group-compact {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group-compact label {
+            margin-bottom: 0;
+            white-space: nowrap;
+        }
+        
+        .form-group-compact select {
+            width: auto;
+            flex: 1;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 15px;
+        }
+        
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: white;
+            font-size: 15px;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 16px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, var(--accent1) 0%, var(--primary) 100%);
+            color: white;
+            padding: 14px 20px;
+            border-radius: var(--radius-sm);
+            border: 0;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent1) 100%);
+            transform: translateY(-2px);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-secondary {
+            background: var(--text-light);
+        }
+        
+        .btn-secondary:hover {
+            background: #64748b;
+        }
+        
+        .btn-icon {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .q {
+            margin-bottom: 20px;
+            padding: 18px;
+            border-radius: var(--radius-sm);
+            background: var(--card);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            border-left: 4px solid;
+            border-image: linear-gradient(135deg, var(--accent1), var(--primary), var(--accent2)) 1;
+        }
+        
+        .q.unanswered {
+            background: #fef2f2;
+            border-color: var(--error);
+        }
+        
+        .q.highlight {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.1);
+        }
+        
+        .q h3 {
+            font-size: 16px;
+            margin: 0 0 12px;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+        
+        /* 情景题特殊样式 */
+        .scenario-context {
+            font-size: 14px;
+            color: var(--text);
+            background: #f8fafc;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 8px 0;
+            line-height: 1.4;
+            font-weight: 500;
+        }
+        
+        .scenario-options {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 12px;
+        }
+        
+        .scenario-option {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: auto;
+        }
+        
+        .scenario-option:hover {
+            background: #f1f5f9;
+            border-color: var(--primary-light);
+        }
+        
+        .scenario-option.selected {
+            background: #e0f2fe;
+            border-color: var(--primary);
+        }
+        
+        .scenario-option input {
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+        
+        .option-label {
+            font-weight: 600;
+            color: var(--primary);
+            min-width: 20px;
+            font-size: 14px;
+        }
+        
+        .option-text {
+            flex: 1;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        /* 常规题样式 */
+        .choices {
+            display: flex;
+            gap: 5px;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        
+        .choice {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 12px;
+            flex: 1;
+            min-width: 0;
+            cursor: pointer;
+        }
+        
+        .choice input {
+            margin-top: 5px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .choice-label {
+            font-size: 11px;
+            text-align: center;
+            margin-top: 4px;
+            line-height: 1.2;
+            color: var(--text-light);
+        }
+        
+        .progress-container {
+            margin-bottom: 25px;
+        }
+        
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--text-light);
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent1), var(--primary), var(--accent2));
+            border-radius: 3px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        
+        .result-bars {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .bar {
+            background: #f8f9fa;
+            border-radius: var(--radius-sm);
+            padding: 15px;
+            border: 1px solid var(--border);
+        }
+        
+        .bar-title {
+            font-size: 14px;
+            margin: 0 0 10px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .bar-inner {
+            height: 10px;
+            border-radius: 5px;
+            background: linear-gradient(90deg, var(--accent1), var(--primary), var(--accent2));
+            transition: width 0.5s ease;
+        }
+        
+        .confidence-indicator {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+        
+        .confidence-high {
+            background: var(--success);
+            color: white;
+        }
+        
+        .confidence-medium {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .confidence-low {
+            background: var(--error);
+            color: white;
+        }
+        
+        .summary {
+            margin-top: 20px;
+        }
+        
+        .details {
+            display: none;
+            margin-top: 15px;
+            font-size: 14px;
+            color: var(--text);
+            line-height: 1.6;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: var(--radius-sm);
+        }
+        
+        .details.open {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .insight-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f0f9ff;
+            border-radius: var(--radius-sm);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .insight-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+        
+        .toggle-link {
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .toggle-link:hover {
+            text-decoration: underline;
+        }
+        
+        .dimensions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .dimension {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: var(--radius-sm);
+            text-align: center;
+        }
+        
+        .dimension strong {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 15px;
+            color: var(--primary);
+        }
+        
+        .dimension span {
+            font-size: 13px;
+            color: var(--text-light);
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 13px;
+            color: var(--text-light);
+            border-top: 1px solid var(--border);
+            margin-top: 30px;
+        }
+        
+        .feedback-note {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 10px;
+            font-style: italic;
+        }
+        
+        /* 新维度样式 */
+        .new-dimension-section {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px dashed var(--border);
+        }
+        
+        .new-dimension-btn {
+            background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+        }
+        
+        .new-dimension-btn:hover {
+            background: linear-gradient(135deg, #a855f7 0%, #8b5cf6 100%);
+        }
+        
+        .ta-result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f5ff;
+            border-radius: var(--radius-sm);
+            border-left: 4px solid #8b5cf6;
+        }
+        
+        .ta-result-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #7c3aed;
+        }
+        
+        /* 按钮并列布局 */
+        .button-row {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .button-row .btn {
+            flex: 1;
+            margin-top: 0;
+        }
+        
+        .ta-description {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 480px) {
+            .app-body {
+                padding: 0 15px 80px;
+            }
+            
+            .card {
+                padding: 16px;
+            }
+            
+            .choices {
+                gap: 3px;
+            }
+            
+            .choice {
+                font-size: 11px;
+            }
+            
+            .choice-label {
+                font-size: 10px;
+            }
+            
+            .choice input {
+                width: 16px;
+                height: 16px;
+            }
+            
+            .scenario-option {
+                padding: 7px 9px;
+                gap: 7px;
+            }
+            
+            .option-text {
+                font-size: 13px;
+            }
+            
+            .option-label {
+                font-size: 13px;
+                min-width: 18px;
+            }
+            
+            .result-bars {
+                grid-template-columns: 1fr;
+            }
+            
+            .dimensions-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .form-group-compact {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            
+            .form-group-compact select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="app-header">
+            <div class="app-header-content">
+                <h1>MBTI 性格测试</h1>
+                <p class="subtitle">探索你的性格类型，了解自我</p>
+            </div>
+        </div>
+        
+        <div class="app-body">
+            <section class="card">
+                <div class="meta">
+                    <p>本测试使用5分量表，综合了情景题和普通题,效度提高。</p>
+                    <p>注意事项：</p>
+                    <ul>
+                        <li>请根据你的真实想法作答，不必考虑"正确答案"</li>
+                        <li>测试时间大约15-20分钟，完成后可查看详细报告</li>
+                        <li>情景题请选择最符合你真实做法的选项</li>
+                        <li>系统会根据你的答题模式提供个性化反馈</li>
+                    </ul>
+                </div>
+                
+                <div class="form-group-compact">
+                    <label for="numQ">题目数量：</label>
+                    <select id="numQ">
+                        <option value="60" selected>60题（标准版）</option>
+                        <option value="96">96题（进阶版）</option>
+                    </select>
+                </div>
+                
+                <button class="btn" id="startBtn" type="button">
+                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                        <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    开始MBTI测试
+                </button>
+                
+                <div class="new-dimension-section">
+                    <div class="ta-description">
+                        <strong>-T/-A维度</strong>：这个维度反映了您在压力下的应对方式和自信程度。-T（动荡型）倾向于自我批评和焦虑，-A（自信型）则更加自信和情绪稳定。
+                    </div>
+                    <button class="btn new-dimension-btn" id="taTestBtn" type="button">
+                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        测试-T/-A维度
+                    </button>
+                </div>
+            </section>
+
+            <form id="testForm" class="card" style="display:none">
+                <div class="progress-container">
+                    <div class="progress-info">
+                        <span>答题进度</span>
+                        <span id="progressText">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressBar"></div>
+                    </div>
+                </div>
+                
+                <div id="questions"></div>
+                
+                <button type="button" class="btn" id="submitBtn">
+                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    提交并查看结果
+                </button>
+            </form>
+
+            <section id="result" class="card" style="display:none">
+                <h2 class="card-title">测试结果</h2>
+                <div class="result-bars" id="bars"></div>
+                <div class="summary" id="summary"></div>
+                <div id="insights"></div>
+                
+                <div id="taResult" class="ta-result" style="display:none">
+                    <h3 class="ta-result-title">-T/-A 维度结果</h3>
+                    <div id="taContent"></div>
+                </div>
+            </section>
+            
+            <section class="card">
+                <h2 class="card-title">维度说明</h2>
+                <div class="dimensions-grid">
+                    <div class="dimension">
+                        <strong>E(外向) - I(内向)</strong>
+                        <span>精力来源方向</span>
+                    </div>
+                    <div class="dimension">
+                        <strong>S(实感) - N(直觉)</strong>
+                        <span>信息获取方式</span>
+                    </div>
+                    <div class="dimension">
+                        <strong>T(思考) - F(情感)</strong>
+                        <span>决策方式</span>
+                    </div>
+                    <div class="dimension">
+                        <strong>J(判断) - P(感知)</strong>
+                        <span>生活态度倾向</span>
+                    </div>
+                    <div class="dimension">
+                        <strong>-T(动荡) - -A(自信)</strong>
+                        <span>自信与压力应对</span>
+                    </div>
+                </div>
+            </section>
+            
+            <div class="footer">
+                <p>提示：本测试仅供娱乐和自我探索使用。</p>
+                <p class="feedback-note">测试结果基于您的答题模式分析，建议结合自我反思来理解</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 情景题题库 - 60题（保持不变）
+        const SCENARIO_QUESTIONS = [
+            // E/I 维度情景题 (15题)
+            {axis:'EI',text:'当团队需要有人代表参加行业交流会时',dir:1,
+             options: [
+                 '我会主动报名参加',
+                 '等领导指派',
+                 '推荐其他同事',
+                 '尽量避免这类任务',
+                 '视具体情况而定'
+             ]},
+            {axis:'EI',text:'在周末安排上，我更倾向于',dir:-1,
+             options: [
+                 '独自看书或追剧',
+                 '约朋友聚餐逛街',
+                 '参加兴趣小组活动',
+                 '宅家休息',
+                 '随机安排'
+             ]},
+            {axis:'EI',text:'参加陌生人的婚礼时，我会',dir:-1,
+             options: [
+                 '主要和熟悉的人坐在一起',
+                 '主动认识新朋友',
+                 '观察现场氛围',
+                 '提前了解宾客名单',
+                 '随遇而安'
+             ]},
+            {axis:'EI',text:'当公司组织团建活动时，我通常',dir:1,
+             options: [
+                 '积极参与策划组织',
+                 '按照安排参加',
+                 '找理由推脱',
+                 '只参加熟悉同事的活动',
+                 '看活动内容决定'
+             ]},
+            {axis:'EI',text:'在长途旅行中，我更喜欢',dir:-1,
+             options: [
+                 '独自享受风景和思考',
+                 '与旅伴聊天互动',
+                 '参加旅行团活动',
+                 '安静地看书听音乐',
+                 '混合各种方式'
+             ]},
+            {axis:'EI',text:'面对新的工作环境，我会',dir:1,
+             options: [
+                 '主动认识所有同事',
+                 '等待别人来认识我',
+                 '先观察环境',
+                 '只与必要的人交流',
+                 '慢慢适应'
+             ]},
+            {axis:'EI',text:'在朋友聚会中，我通常',dir:-1,
+             options: [
+                 '安静地听大家聊天',
+                 '主动带动气氛',
+                 '与熟悉的人深聊',
+                 '提前离开',
+                 '根据心情决定'
+             ]},
+            {axis:'EI',text:'当需要学习新知识时，我倾向于',dir:-1,
+             options: [
+                 '独自研究资料',
+                 '参加培训班',
+                 '找学习伙伴',
+                 '在线学习',
+                 '多种方式结合'
+             ]},
+            {axis:'EI',text:'在团队项目中，我更喜欢担任',dir:1,
+             options: [
+                 '沟通协调的角色',
+                 '技术支持的角色',
+                 '独立完成的部分',
+                 '后勤保障工作',
+                 '根据项目需要'
+             ]},
+            {axis:'EI',text:'面对突发社交场合，我会',dir:-1,
+             options: [
+                 '感到紧张想要回避',
+                 '轻松应对',
+                 '观察后再参与',
+                 '找借口离开',
+                 '视场合重要程度'
+             ]},
+            {axis:'EI',text:'在工作会议中，我通常',dir:1,
+             options: [
+                 '积极发言表达观点',
+                 '先听别人发言',
+                 '只在自己专业领域发言',
+                 '保持沉默',
+                 '必要时发言'
+             ]},
+            {axis:'EI',text:'度过假期的方式，我倾向于',dir:-1,
+             options: [
+                 '独自旅行或宅家',
+                 '与朋友聚会',
+                 '参加集体活动',
+                 '陪伴家人',
+                 '灵活安排'
+             ]},
+            {axis:'EI',text:'当遇到困难时，我首先会',dir:-1,
+             options: [
+                 '自己思考解决方案',
+                 '向他人求助',
+                 '查阅资料',
+                 '暂时搁置',
+                 '多种方式尝试'
+             ]},
+            {axis:'EI',text:'在社交网络上，我通常',dir:1,
+             options: [
+                 '经常分享动态',
+                 '偶尔发些内容',
+                 '只看不发',
+                 '与熟人互动',
+                 '视心情而定'
+             ]},
+            {axis:'EI',text:'面对公开演讲的机会，我会',dir:-1,
+             options: [
+                 '感到压力想要推辞',
+                 '欣然接受',
+                 '充分准备后接受',
+                 '推荐他人',
+                 '看演讲内容决定'
+             ]},
+
+            // S/N 维度情景题 (15题)
+            {axis:'SN',text:'当领导布置一个新项目时，我首先会',dir:1,
+             options: [
+                 '询问具体要求和截止时间',
+                 '思考项目的长远意义',
+                 '研究类似案例',
+                 '构想创新方案',
+                 '了解团队资源'
+             ]},
+            {axis:'SN',text:'阅读产品说明书时，我更关注',dir:-1,
+             options: [
+                 '具体操作步骤',
+                 '设计理念和原理',
+                 '安全注意事项',
+                 '可能的应用场景',
+                 '整体功能介绍'
+             ]},
+            {axis:'SN',text:'学习新技能时，我更倾向于',dir:1,
+             options: [
+                 '跟着教程一步步练习',
+                 '先理解整体概念',
+                 '直接动手尝试',
+                 '思考各种应用可能',
+                 '多种方法结合'
+             ]},
+            {axis:'SN',text:'规划旅行路线时，我注重',dir:-1,
+             options: [
+                 '详细的日程安排',
+                 '体验当地文化',
+                 '必去景点清单',
+                 '发现意外惊喜',
+                 '平衡计划与自由'
+             ]},
+            {axis:'SN',text:'面对复杂问题时，我习惯',dir:1,
+             options: [
+                 '分解成小问题解决',
+                 '从整体把握本质',
+                 '参考过往经验',
+                 '寻找创新解法',
+                 '综合分析处理'
+             ]},
+            {axis:'SN',text:'在选择职业时，我更看重',dir:-1,
+             options: [
+                 '具体的薪资待遇',
+                 '长远发展前景',
+                 '工作稳定性',
+                 '个人兴趣匹配',
+                 '多方面因素'
+             ]},
+            {axis:'SN',text:'阅读小说时，我更容易被',dir:1,
+             options: [
+                 '具体的情节描写吸引',
+                 '深刻的主题思想吸引',
+                 '生动的人物刻画吸引',
+                 '独特的叙事手法吸引',
+                 '整体氛围吸引'
+             ]},
+            {axis:'SN',text:'做重要决定前，我会',dir:-1,
+             options: [
+                 '收集大量具体数据',
+                 '思考各种可能性',
+                 '参考他人经验',
+                 '相信直觉判断',
+                 '综合考虑'
+             ]},
+            {axis:'SN',text:'在解决问题时，我倾向于',dir:1,
+             options: [
+                 '使用已验证的方法',
+                 '尝试新的思路',
+                 '分析根本原因',
+                 '想象多种方案',
+                 '根据问题特点'
+             ]},
+            {axis:'SN',text:'看待未来规划时，我注重',dir:-1,
+             options: [
+                 '具体的实施步骤',
+                 '愿景和目标',
+                 '现实条件约束',
+                 '潜在机会',
+                 '平衡理想与现实'
+             ]},
+            {axis:'SN',text:'学习历史知识时，我更喜欢',dir:1,
+             options: [
+                 '具体的历史事件',
+                 '历史发展规律',
+                 '人物传记故事',
+                 '历史的启示意义',
+                 '全面的历史观'
+             ]},
+            {axis:'SN',text:'面对新技术时，我首先',dir:-1,
+             options: [
+                 '了解具体操作方法',
+                 '思考其原理',
+                 '研究应用场景',
+                 '想象未来发展',
+                 '逐步探索'
+             ]},
+            {axis:'SN',text:'在艺术欣赏中，我注重',dir:1,
+             options: [
+                 '技巧和细节',
+                 '情感和意境',
+                 '历史和背景',
+                 '创新和突破',
+                 '整体感受'
+             ]},
+            {axis:'SN',text:'制定计划时，我倾向于',dir:-1,
+             options: [
+                 '详细的步骤安排',
+                 '大致的方向框架',
+                 '重点事项清单',
+                 '灵活调整空间',
+                 '结构化的方案'
+             ]},
+            {axis:'SN',text:'面对陌生领域，我会',dir:1,
+             options: [
+                 '先学习基础知识',
+                 '直接探索实践',
+                 '寻找规律模式',
+                 '想象应用场景',
+                 '循序渐进了解'
+             ]},
+
+            // T/F 维度情景题 (15题)
+            {axis:'TF',text:'当团队成员工作失误影响进度时，我首先会',dir:1,
+             options: [
+                 '分析问题原因并制定改进方案',
+                 '考虑当事人的感受和压力',
+                 '按制度处理',
+                 '帮助其解决问题',
+                 '了解具体情况'
+             ]},
+            {axis:'TF',text:'在选择礼物时，我更看重',dir:-1,
+             options: [
+                 '礼物的实用价值',
+                 '收礼人的喜好',
+                 '价格是否合适',
+                 '礼物的情感意义',
+                 '多方面考虑'
+             ]},
+            {axis:'TF',text:'当朋友向我倾诉感情问题时，我通常会',dir:-1,
+             options: [
+                 '耐心倾听给予情感支持',
+                 '分析问题给出建议',
+                 '分享类似经历',
+                 '帮助理清思路',
+                 '根据问题性质'
+             ]},
+            {axis:'TF',text:'在团队决策中，我更注重',dir:1,
+             options: [
+                 '方案的逻辑合理性',
+                 '团队成员的感受',
+                 '执行的可操作性',
+                 '创新的可能性',
+                 '综合因素'
+             ]},
+            {axis:'TF',text:'面对他人的批评，我倾向于',dir:-1,
+             options: [
+                 '分析批评的合理性',
+                 '感受批评的态度',
+                 '反思自身问题',
+                 '考虑批评的意图',
+                 '客观对待'
+             ]},
+            {axis:'TF',text:'在招聘面试中，我更关注',dir:1,
+             options: [
+                 '候选人的专业能力',
+                 '与团队的文化匹配',
+                 '工作经验和业绩',
+                 '发展潜力和态度',
+                 '全面评估'
+             ]},
+            {axis:'TF',text:'处理人际关系矛盾时，我注重',dir:-1,
+             options: [
+                 '事实和道理',
+                 '维护和谐关系',
+                 '找到共赢方案',
+                 '理解各方立场',
+                 '具体情况具体分析'
+             ]},
+            {axis:'TF',text:'在做重要决定时，我主要依据',dir:1,
+             options: [
+                 '理性分析和数据',
+                 '个人价值观和感受',
+                 '他人建议和意见',
+                 '直觉和灵感',
+                 '多方面信息'
+             ]},
+            {axis:'TF',text:'面对朋友的求助，我会',dir:-1,
+             options: [
+                 '分析问题提供方案',
+                 '给予情感支持',
+                 '直接帮助解决',
+                 '引导其自己解决',
+                 '根据求助内容'
+             ]},
+            {axis:'TF',text:'在评价工作时，我更看重',dir:1,
+             options: [
+                 '工作成果和质量',
+                 '团队合作和氛围',
+                 '努力和付出',
+                 '创新和突破',
+                 '综合表现'
+             ]},
+            {axis:'TF',text:'处理客户投诉时，我首先',dir:-1,
+             options: [
+                 '安抚客户情绪',
+                 '分析问题原因',
+                 '按照流程处理',
+                 '寻找解决方案',
+                 '了解具体情况'
+             ]},
+            {axis:'TF',text:'在团队建设中，我重视',dir:1,
+             options: [
+                 '明确的分工和规则',
+                 '融洽的人际关系',
+                 '高效的工作流程',
+                 '创新的团队文化',
+                 '平衡发展'
+             ]},
+            {axis:'TF',text:'面对道德困境时，我依据',dir:-1,
+             options: [
+                 '逻辑推理和分析',
+                 '个人情感和同情',
+                 '社会规范和价值观',
+                 '具体情况判断',
+                 '多方面考量'
+             ]},
+            {axis:'TF',text:'在给予反馈时，我注重',dir:1,
+             options: [
+                 '具体的事实依据',
+                 '对方的接受程度',
+                 '建设性的建议',
+                 '鼓励和支持',
+                 '平衡的方式'
+             ]},
+            {axis:'TF',text:'处理家庭事务时，我倾向于',dir:-1,
+             options: [
+                 '讲道理和原则',
+                 '照顾家人感受',
+                 '寻求共识',
+                 '灵活处理',
+                 '视事情重要性'
+             ]},
+
+            // J/P 维度情景题 (15题)
+            {axis:'JP',text:'面对突然的假期，我的第一反应是',dir:1,
+             options: [
+                 '立即制定详细的行程计划',
+                 '享受难得的自由时间',
+                 '约朋友随机安排',
+                 '先休息再看情况',
+                 '简单规划'
+             ]},
+            {axis:'JP',text:'在超市购物时，我通常',dir:-1,
+             options: [
+                 '按购物清单购买',
+                 '看到喜欢的就买',
+                 '比较多个品牌',
+                 '随心情选择',
+                 '大致按清单'
+             ]},
+            {axis:'JP',text:'准备重要会议时，我会',dir:1,
+             options: [
+                 '提前准备好所有材料',
+                 '现场即兴发挥',
+                 '准备几个要点',
+                 '根据气氛调整',
+                 '充分准备'
+             ]},
+            {axis:'JP',text:'处理多项任务时，我倾向于',dir:-1,
+             options: [
+                 '按优先级顺序处理',
+                 '同时处理多个任务',
+                 '先处理简单的',
+                 '根据灵感选择',
+                 '灵活安排'
+             ]},
+            {axis:'JP',text:'规划个人目标时，我习惯',dir:1,
+             options: [
+                 '设定明确的阶段性目标',
+                 '保持开放的可能性',
+                 '大致方向即可',
+                 '随时调整目标',
+                 '有框架的规划'
+             ]},
+            {axis:'JP',text:'面对截止日期，我通常',dir:-1,
+             options: [
+                 '提前完成避免压力',
+                 '在最后一刻完成',
+                 '按计划稳步推进',
+                 '视任务难度决定',
+                 '尽量提前'
+             ]},
+            {axis:'JP',text:'整理个人物品时，我',dir:1,
+             options: [
+                 '有固定的收纳位置',
+                 '随意放置方便取用',
+                 '定期整理',
+                 '需要时才整理',
+                 '大致有序'
+             ]},
+            {axis:'JP',text:'做旅行准备时，我会',dir:-1,
+             options: [
+                 '列出详细的行李清单',
+                 '临行前随意收拾',
+                 '准备必需品',
+                 '根据目的地决定',
+                 '简单准备'
+             ]},
+            {axis:'JP',text:'面对计划变更，我通常',dir:1,
+             options: [
+                 '感到困扰和不适',
+                 '轻松适应变化',
+                 '快速调整计划',
+                 '享受意外惊喜',
+                 '理性应对'
+             ]},
+            {axis:'JP',text:'在工作安排上，我偏好',dir:-1,
+             options: [
+                 '明确的工作时间表',
+                 '灵活的工作方式',
+                 '重点事项安排',
+                 '根据状态调整',
+                 '结构化的灵活'
+             ]},
+            {axis:'JP',text:'处理电子邮件时，我习惯',dir:1,
+             options: [
+                 '立即回复或分类处理',
+                 '积累一批后处理',
+                 '重要的立即回复',
+                 '有空时处理',
+                 '及时处理'
+             ]},
+            {axis:'JP',text:'学习新知识时，我倾向于',dir:-1,
+             options: [
+                 '系统性地学习',
+                 '跳跃式地探索',
+                 '按兴趣选择内容',
+                 '实践中学习',
+                 '有重点地学习'
+             ]},
+            {axis:'JP',text:'做家务时，我通常',dir:1,
+             options: [
+                 '按固定流程进行',
+                 '看心情随意做',
+                 '重点打扫',
+                 '需要时再做',
+                 '保持基本整洁'
+             ]},
+            {axis:'JP',text:'面对选择时，我容易',dir:-1,
+             options: [
+                 '快速做出决定',
+                 '犹豫不决',
+                 '收集信息后决定',
+                 '让他人决定',
+                 '权衡后决定'
+             ]},
+            {axis:'JP',text:'在时间管理上，我',dir:1,
+             options: [
+                 '严格按计划执行',
+                 '随性安排时间',
+                 '大致安排',
+                 '根据重要性调整',
+                 '有计划地灵活'
+             ]}
+        ];
+
+        // 普通题题库 - 扩充到120题（每个维度30题）
+        const REGULAR_QUESTIONS = [
+            // E/I 维度普通题 (30题)
+            {axis:'EI',text:'在社交场合中，我通常感到精力充沛',dir:1},
+            {axis:'EI',text:'独处时我感到最舒适和放松',dir:-1},
+            {axis:'EI',text:'我喜欢成为众人关注的焦点',dir:1},
+            {axis:'EI',text:'在人群中待久了会让我感到疲惫',dir:-1},
+            {axis:'EI',text:'我乐于结识新朋友',dir:1},
+            {axis:'EI',text:'我更喜欢一对一的深入交流',dir:-1},
+            {axis:'EI',text:'在会议上我愿意主动发言',dir:1},
+            {axis:'EI',text:'我需要独处的时间来恢复精力',dir:-1},
+            {axis:'EI',text:'我喜欢参加派对和社交活动',dir:1},
+            {axis:'EI',text:'安静的环境让我更能集中注意力',dir:-1},
+            {axis:'EI',text:'我善于与陌生人开启对话',dir:1},
+            {axis:'EI',text:'在人群中我常常感到不自在',dir:-1},
+            {axis:'EI',text:'我愿意在公共场合表达观点',dir:1},
+            {axis:'EI',text:'我享受独自思考和反思的时间',dir:-1},
+            {axis:'EI',text:'团队合作让我感到充满活力',dir:1},
+            {axis:'EI',text:'过多的社交活动会让我感到压力',dir:-1},
+            {axis:'EI',text:'我喜欢通过讨论来理清思路',dir:1},
+            {axis:'EI',text:'我倾向于先思考再表达',dir:-1},
+            {axis:'EI',text:'在陌生环境中我能快速适应',dir:1},
+            {axis:'EI',text:'我更喜欢书面沟通而非口头交流',dir:-1},
+            {axis:'EI',text:'我愿意主动组织集体活动',dir:1},
+            {axis:'EI',text:'我常常需要时间独处来充电',dir:-1},
+            {axis:'EI',text:'在团队中我常扮演活跃气氛的角色',dir:1},
+            {axis:'EI',text:'我享受独自完成工作的过程',dir:-1},
+            {axis:'EI',text:'我喜欢与不同背景的人交流',dir:1},
+            {axis:'EI',text:'过多的外部刺激会让我感到疲惫',dir:-1},
+            {axis:'EI',text:'我乐于在公众面前展示自己',dir:1},
+            {axis:'EI',text:'我倾向于在小圈子内保持深度交往',dir:-1},
+            {axis:'EI',text:'社交网络让我感到兴奋和有趣',dir:1},
+            {axis:'EI',text:'我享受安静阅读和思考的时光',dir:-1},
+
+            // S/N 维度普通题 (30题)
+            {axis:'SN',text:'我更关注具体的事实和细节',dir:1},
+            {axis:'SN',text:'我常常思考未来的可能性',dir:-1},
+            {axis:'SN',text:'我相信眼见为实',dir:1},
+            {axis:'SN',text:'我喜欢探索新的想法和概念',dir:-1},
+            {axis:'SN',text:'我注重实际经验和具体操作',dir:1},
+            {axis:'SN',text:'我对抽象理论和哲学感兴趣',dir:-1},
+            {axis:'SN',text:'我更相信经过验证的方法',dir:1},
+            {axis:'SN',text:'我喜欢想象"如果...会怎样"',dir:-1},
+            {axis:'SN',text:'我倾向于按部就班地工作',dir:1},
+            {axis:'SN',text:'我常常能看到事物的潜在含义',dir:-1},
+            {axis:'SN',text:'我更喜欢明确具体的指示',dir:1},
+            {axis:'SN',text:'我善于发现事物间的联系',dir:-1},
+            {axis:'SN',text:'我注重当下的实际情况',dir:1},
+            {axis:'SN',text:'我对未来的愿景充满热情',dir:-1},
+            {axis:'SN',text:'我倾向于使用已知有效的方法',dir:1},
+            {axis:'SN',text:'我喜欢创造新的解决方案',dir:-1},
+            {axis:'SN',text:'我相信经验是最好的老师',dir:1},
+            {axis:'SN',text:'我常常思考事物的深层意义',dir:-1},
+            {axis:'SN',text:'我注重具体的数据和事实',dir:1},
+            {axis:'SN',text:'我对隐喻和象征很敏感',dir:-1},
+            {axis:'SN',text:'我喜欢处理具体的实际问题',dir:1},
+            {axis:'SN',text:'我享受头脑风暴和创意讨论',dir:-1},
+            {axis:'SN',text:'我更关注现实中的细节',dir:1},
+            {axis:'SN',text:'我常常能预见事情的发展方向',dir:-1},
+            {axis:'SN',text:'我倾向于基于现有信息做决定',dir:1},
+            {axis:'SN',text:'我喜欢探索未知的领域',dir:-1},
+            {axis:'SN',text:'我注重实际的结果和效果',dir:1},
+            {axis:'SN',text:'我对理论和模型很感兴趣',dir:-1},
+            {axis:'SN',text:'我善于观察环境中的细节变化',dir:1},
+            {axis:'SN',text:'我常常思考各种可能性',dir:-1},
+
+            // T/F 维度普通题 (30题)
+            {axis:'TF',text:'在做决定时，逻辑比情感更重要',dir:1},
+            {axis:'TF',text:'我常常考虑他人的感受',dir:-1},
+            {axis:'TF',text:'我认为公平比和谐更重要',dir:1},
+            {axis:'TF',text:'我重视维护人际关系',dir:-1},
+            {axis:'TF',text:'我倾向于客观分析问题',dir:1},
+            {axis:'TF',text:'我很容易感受到他人的情绪',dir:-1},
+            {axis:'TF',text:'我认为真理比人情更重要',dir:1},
+            {axis:'TF',text:'我注重团队的和谐氛围',dir:-1},
+            {axis:'TF',text:'我喜欢用数据和事实说话',dir:1},
+            {axis:'TF',text:'我常常基于价值观做决定',dir:-1},
+            {axis:'TF',text:'我认为效率比人情更重要',dir:1},
+            {axis:'TF',text:'我善于理解他人的情感需求',dir:-1},
+            {axis:'TF',text:'我喜欢分析问题的因果关系',dir:1},
+            {axis:'TF',text:'我倾向于妥协以维护关系',dir:-1},
+            {axis:'TF',text:'我认为原则应该坚持',dir:1},
+            {axis:'TF',text:'我注重他人的感受和反应',dir:-1},
+            {axis:'TF',text:'我喜欢用逻辑推理解决问题',dir:1},
+            {axis:'TF',text:'我常常考虑决定对人际关系的影响',dir:-1},
+            {axis:'TF',text:'我认为客观标准很重要',dir:1},
+            {axis:'TF',text:'我善于调解人际冲突',dir:-1},
+            {axis:'TF',text:'我喜欢用系统的方法分析问题',dir:1},
+            {axis:'TF',text:'我重视集体的情感和谐',dir:-1},
+            {axis:'TF',text:'我认为理性思考优于情感冲动',dir:1},
+            {axis:'TF',text:'我常常站在他人角度思考问题',dir:-1},
+            {axis:'TF',text:'我喜欢用事实和数据支持观点',dir:1},
+            {axis:'TF',text:'我注重维护良好的人际关系',dir:-1},
+            {axis:'TF',text:'我认为逻辑一致性很重要',dir:1},
+            {axis:'TF',text:'我容易感受到环境的情感氛围',dir:-1},
+            {axis:'TF',text:'我喜欢用分析框架处理问题',dir:1},
+            {axis:'TF',text:'我重视情感联系和共鸣',dir:-1},
+
+            // J/P 维度普通题 (30题)
+            {axis:'JP',text:'我喜欢有计划地做事',dir:1},
+            {axis:'JP',text:'我享受随性而为的乐趣',dir:-1},
+            {axis:'JP',text:'我习惯提前完成任务',dir:1},
+            {axis:'JP',text:'我喜欢保持选择的开放性',dir:-1},
+            {axis:'JP',text:'我认为时间管理很重要',dir:1},
+            {axis:'JP',text:'我享受即兴发挥的过程',dir:-1},
+            {axis:'JP',text:'我喜欢事情井井有条',dir:1},
+            {axis:'JP',text:'我适应变化的能力很强',dir:-1},
+            {axis:'JP',text:'我习惯制定详细的计划',dir:1},
+            {axis:'JP',text:'我喜欢灵活应对突发情况',dir:-1},
+            {axis:'JP',text:'我认为守时很重要',dir:1},
+            {axis:'JP',text:'我享受探索未知的过程',dir:-1},
+            {axis:'JP',text:'我喜欢按清单完成任务',dir:1},
+            {axis:'JP',text:'我善于应对计划外的变化',dir:-1},
+            {axis:'JP',text:'我习惯提前做好准备',dir:1},
+            {axis:'JP',text:'我喜欢保持多种可能性',dir:-1},
+            {axis:'JP',text:'我认为结构化和组织很重要',dir:1},
+            {axis:'JP',text:'我享受自由安排的时间',dir:-1},
+            {axis:'JP',text:'我喜欢事情有明确的截止时间',dir:1},
+            {axis:'JP',text:'我善于同时处理多个任务',dir:-1},
+            {axis:'JP',text:'我习惯按优先级处理事情',dir:1},
+            {axis:'JP',text:'我喜欢在压力下工作',dir:-1},
+            {axis:'JP',text:'我认为事先规划很重要',dir:1},
+            {axis:'JP',text:'我享受意外带来的惊喜',dir:-1},
+            {axis:'JP',text:'我喜欢清晰的目标和方向',dir:1},
+            {axis:'JP',text:'我适应新环境的能力很强',dir:-1},
+            {axis:'JP',text:'我习惯按时完成计划',dir:1},
+            {axis:'JP',text:'我喜欢保持生活的灵活性',dir:-1},
+            {axis:'JP',text:'我认为秩序和规律很重要',dir:1},
+            {axis:'JP',text:'我享受不确定性的挑战',dir:-1}
+        ];
+
+        // -T/-A 维度测试题 (20题)
+        const TA_QUESTIONS = [
+            {text:'我常常担心自己做得不够好',dir:1},
+            {text:'面对批评时，我容易感到不安',dir:1},
+            {text:'我对自己有很高的期望',dir:1},
+            {text:'在压力下我容易感到焦虑',dir:1},
+            {text:'我经常反思自己的不足之处',dir:1},
+            {text:'面对挑战时，我充满自信',dir:-1},
+            {text:'我容易受到他人评价的影响',dir:1},
+            {text:'我相信自己能够应对各种情况',dir:-1},
+            {text:'我常常感到需要证明自己',dir:1},
+            {text:'在困难面前我保持镇定',dir:-1},
+            {text:'我对自己的决定常常产生怀疑',dir:1},
+            {text:'我对自己有清晰的认知和定位',dir:-1},
+            {text:'我容易因小事而感到压力',dir:1},
+            {text:'我能够很好地管理自己的情绪',dir:-1},
+            {text:'我常常担心未来的不确定性',dir:1},
+            {text:'我相信事情总会朝着好的方向发展',dir:-1},
+            {text:'我容易受到负面情绪的影响',dir:1},
+            {text:'我对自己和生活感到满意',dir:-1},
+            {text:'我常常感到需要他人的认可',dir:1},
+            {text:'我能够坦然接受自己的不完美',dir:-1}
+        ];
+
+        // 页面元素
+        const startBtn = document.getElementById('startBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const testForm = document.getElementById('testForm');
+        const resultSection = document.getElementById('result');
+        const questionsContainer = document.getElementById('questions');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const numQSelect = document.getElementById('numQ');
+        const taTestBtn = document.getElementById('taTestBtn');
+        const taResult = document.getElementById('taResult');
+        const taContent = document.getElementById('taContent');
+
+        // 测试状态
+        let currentTestType = 'mbti'; // 'mbti' 或 'ta'
+        let selectedQuestions = [];
+        let answers = {};
+        let taAnswers = {};
+
+        // 开始测试
+        startBtn.addEventListener('click', startTest);
+        taTestBtn.addEventListener('click', startTATest);
+
+        // 提交测试
+        submitBtn.addEventListener('click', submitTest);
+
+        // 开始MBTI测试
+        function startTest() {
+            currentTestType = 'mbti';
+            const totalQuestions = parseInt(numQSelect.value);
+            const scenarioCount = Math.floor(totalQuestions / 3);
+            const regularCount = totalQuestions - scenarioCount;
+            
+            // 清空之前的答案
+            answers = {};
+            
+            // 选择题目
+            selectedQuestions = selectQuestions(totalQuestions, scenarioCount, regularCount);
+            
+            // 显示测试表单
+            testForm.style.display = 'block';
+            resultSection.style.display = 'none';
+            taResult.style.display = 'none';
+            
+            // 渲染题目
+            renderQuestions();
+            
+            // 更新进度
+            updateProgress();
+            
+            setTimeout(() => {
+                testForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+             }, 100);
+        }
+
+        // 开始-T/-A测试
+        function startTATest() {
+            currentTestType = 'ta';
+            
+            // 清空之前的答案
+            taAnswers = {};
+            
+            // 使用所有TA题目
+            selectedQuestions = [...TA_QUESTIONS];
+            
+            // 显示测试表单
+            testForm.style.display = 'block';
+            resultSection.style.display = 'none';
+            taResult.style.display = 'none';
+            
+            // 渲染题目
+            renderQuestions();
+            
+            // 更新进度
+            updateProgress();
+            
+            // 滚动到顶部
+            setTimeout(() => {
+                testForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        // 选择题目
+// 在选择题目函数中，确保情景题排在普通题后面
+function selectQuestions(total, scenarioCount, regularCount) {
+    const selected = [];
+    
+    if (currentTestType === 'mbti') {
+        // 按维度分配情景题
+        const scenarioByAxis = {
+            'EI': [...SCENARIO_QUESTIONS.filter(q => q.axis === 'EI')],
+            'SN': [...SCENARIO_QUESTIONS.filter(q => q.axis === 'SN')],
+            'TF': [...SCENARIO_QUESTIONS.filter(q => q.axis === 'TF')],
+            'JP': [...SCENARIO_QUESTIONS.filter(q => q.axis === 'JP')]
+        };
+        
+        // 按维度分配普通题
+        const regularByAxis = {
+            'EI': [...REGULAR_QUESTIONS.filter(q => q.axis === 'EI')],
+            'SN': [...REGULAR_QUESTIONS.filter(q => q.axis === 'SN')],
+            'TF': [...REGULAR_QUESTIONS.filter(q => q.axis === 'TF')],
+            'JP': [...REGULAR_QUESTIONS.filter(q => q.axis === 'JP')]
+        };
+        
+        // 根据总题数动态分配情景题和普通题数量
+        // 60题：20题情景题 + 40题普通题
+        // 96题：32题情景题 + 64题普通题
+        const scenarioPerAxis = Math.floor(scenarioCount / 4);
+        const regularPerAxis = Math.floor(regularCount / 4);
+        
+        // 先选择普通题（放在前面）
+        for (const axis of ['EI', 'SN', 'TF', 'JP']) {
+            // 选择普通题
+            const shuffledRegulars = [...regularByAxis[axis]].sort(() => 0.5 - Math.random());
+            selected.push(...shuffledRegulars.slice(0, regularPerAxis));
+        }
+        
+        // 再选择情景题（放在后面）
+        for (const axis of ['EI', 'SN', 'TF', 'JP']) {
+            // 选择情景题
+            const shuffledScenarios = [...scenarioByAxis[axis]].sort(() => 0.5 - Math.random());
+            selected.push(...shuffledScenarios.slice(0, scenarioPerAxis));
+        }
+        
+        // 如果总数不够，从各维度补充（先补充普通题，再补充情景题）
+        while (selected.length < total) {
+            const axis = ['EI', 'SN', 'TF', 'JP'][Math.floor(Math.random() * 4)];
+            // 优先补充普通题
+            if (selected.filter(q => !q.options).length < regularCount) {
+                const pool = regularByAxis[axis];
+                const availableQuestions = pool.filter(q => !selected.includes(q));
+                if (availableQuestions.length > 0) {
+                    const randomQ = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
+                    selected.push(randomQ);
+                }
+            } else {
+                // 再补充情景题
+                const pool = scenarioByAxis[axis];
+                const availableQuestions = pool.filter(q => !selected.includes(q));
+                if (availableQuestions.length > 0) {
+                    const randomQ = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
+                    selected.push(randomQ);
+                }
+            }
+        }
+    }
+    
+    // 保持普通题在前，情景题在后的顺序
+    return selected;
+}
+
+        // 渲染题目
+        function renderQuestions() {
+            questionsContainer.innerHTML = '';
+            
+            selectedQuestions.forEach((question, index) => {
+                const qElement = document.createElement('div');
+                qElement.className = 'q';
+                qElement.id = `q${index}`;
+                
+                if (currentTestType === 'mbti') {
+                    if (question.options) {
+                        // 情景题
+                        qElement.innerHTML = `
+                            <h3>${index + 1}. ${question.text}</h3>
+                            <div class="scenario-options">
+                                ${question.options.map((option, optIndex) => `
+                                    <label class="scenario-option">
+                                        <input type="radio" name="q${index}" value="${optIndex + 1}">
+                                        <div class="option-label">${String.fromCharCode(65 + optIndex)}</div>
+                                        <div class="option-text">${option}</div>
+                                    </label>
+                                `).join('')}
+                            </div>
+                        `;
+                    } else {
+                        // 普通题
+                        qElement.innerHTML = `
+                            <h3>${index + 1}. ${question.text}</h3>
+                            <div class="choices">
+                                <label class="choice">
+                                    非常不同意
+                                    <input type="radio" name="q${index}" value="1">
+                                </label>
+                                <label class="choice">
+                                    不同意
+                                    <input type="radio" name="q${index}" value="2">
+                                </label>
+                                <label class="choice">
+                                    中立
+                                    <input type="radio" name="q${index}" value="3">
+                                </label>
+                                <label class="choice">
+                                    同意
+                                    <input type="radio" name="q${index}" value="4">
+                                </label>
+                                <label class="choice">
+                                    非常同意
+                                    <input type="radio" name="q${index}" value="5">
+                                </label>
+                            </div>
+                        `;
+                    }
+                } else {
+                    // -T/-A测试题
+                    qElement.innerHTML = `
+                        <h3>${index + 1}. ${question.text}</h3>
+                        <div class="choices">
+                            <label class="choice">
+                                非常不同意
+                                <input type="radio" name="q${index}" value="1">
+                            </label>
+                            <label class="choice">
+                                不同意
+                                <input type="radio" name="q${index}" value="2">
+                            </label>
+                            <label class="choice">
+                                中立
+                                <input type="radio" name="q${index}" value="3">
+                            </label>
+                            <label class="choice">
+                                同意
+                                <input type="radio" name="q${index}" value="4">
+                            </label>
+                            <label class="choice">
+                                非常同意
+                                <input type="radio" name="q${index}" value="5">
+                            </label>
+                        </div>
+                    `;
+                }
+                
+                questionsContainer.appendChild(qElement);
+                
+                // 添加事件监听器
+                const inputs = qElement.querySelectorAll('input[type="radio"]');
+                inputs.forEach(input => {
+                    input.addEventListener('change', () => {
+                        updateProgress();
+                        
+                        // 高亮已答题
+                        qElement.classList.remove('unanswered');
+                        qElement.classList.add('highlight');
+                        
+                        setTimeout(() => {
+                            qElement.classList.remove('highlight');
+                        }, 1000);
+                    });
+                });
+            });
+        }
+
+        // 更新进度
+        function updateProgress() {
+            let answered = 0;
+            const total = selectedQuestions.length;
+            
+            for (let i = 0; i < total; i++) {
+                const inputs = document.querySelectorAll(`input[name="q${i}"]:checked`);
+                if (inputs.length > 0) {
+                    answered++;
+                }
+            }
+            
+            const progress = (answered / total) * 100;
+            progressBar.style.width = `${progress}%`;
+            progressText.textContent = `${Math.round(progress)}%`;
+            
+            // 更新提交按钮状态
+            submitBtn.disabled = answered < total;
+            if (answered < total) {
+                submitBtn.style.opacity = '0.6';
+                submitBtn.style.cursor = 'not-allowed';
+            } else {
+                submitBtn.style.opacity = '1';
+                submitBtn.style.cursor = 'pointer';
+            }
+        }
+
+ // 提交测试
+    function submitTest() {
+        // 收集答案
+        if (currentTestType === 'mbti') {
+            answers = {};
+            for (let i = 0; i < selectedQuestions.length; i++) {
+                const input = document.querySelector(`input[name="q${i}"]:checked`);
+                if (input) {
+                    answers[i] = parseInt(input.value);
+                }
+            }
+            
+            // 检查是否有未答题目
+            const totalQuestions = selectedQuestions.length;
+            const answeredQuestions = Object.keys(answers).length;
+            
+            if (answeredQuestions < totalQuestions) {
+                // 找到第一个未答题目
+                let firstUnanswered = -1;
+                for (let i = 0; i < totalQuestions; i++) {
+                    if (answers[i] === undefined) {
+                        firstUnanswered = i;
+                        break;
+                    }
+                }
+                
+                if (firstUnanswered !== -1) {
+                    // 标记所有未答题目
+                    markUnansweredQuestions();
+                    
+                    // 滚动到第一个未答题目
+                    const unansweredEl = document.getElementById(`q${firstUnanswered}`);
+                    unansweredEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    
+                    // 添加高亮效果
+                    unansweredEl.classList.add('highlight');
+                    setTimeout(() => {
+                        unansweredEl.classList.remove('highlight');
+                    }, 2000);
+                    
+                    return; // 不继续计算结果
+                }
+            }
+            
+            // 所有题目已回答，计算MBTI结果
+            calculateMBTIResult();
+        } else {
+            taAnswers = {};
+            for (let i = 0; i < selectedQuestions.length; i++) {
+                const input = document.querySelector(`input[name="q${i}"]:checked`);
+                if (input) {
+                    taAnswers[i] = parseInt(input.value);
+                }
+            }
+            
+            // 检查是否有未答题目（TA测试）
+            const totalQuestions = selectedQuestions.length;
+            const answeredQuestions = Object.keys(taAnswers).length;
+            
+            if (answeredQuestions < totalQuestions) {
+                // 找到第一个未答题目
+                let firstUnanswered = -1;
+                for (let i = 0; i < totalQuestions; i++) {
+                    if (taAnswers[i] === undefined) {
+                        firstUnanswered = i;
+                        break;
+                    }
+                }
+                
+                if (firstUnanswered !== -1) {
+                    // 标记所有未答题目
+                    markUnansweredQuestions();
+                    
+                    // 滚动到第一个未答题目
+                    const unansweredEl = document.getElementById(`q${firstUnanswered}`);
+                    unansweredEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    
+                    // 添加高亮效果
+                    unansweredEl.classList.add('highlight');
+                    setTimeout(() => {
+                        unansweredEl.classList.remove('highlight');
+                    }, 2000);
+                    
+                    return; // 不继续计算结果
+                }
+            }
+            
+            // 所有题目已回答，计算-T/-A结果
+            calculateTAResult();
+        }
+        
+        // 显示结果
+        testForm.style.display = 'none';
+        resultSection.style.display = 'block';
+        
+        // 滚动到结果区域而不是最顶端
+        resultSection.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // 标记未答题目
+    function markUnansweredQuestions() {
+        // 清除之前的标记
+        document.querySelectorAll('.q.unanswered').forEach(el => {
+            el.classList.remove('unanswered');
+        });
+        
+        // 标记当前未答题目
+        const totalQuestions = selectedQuestions.length;
+        for (let i = 0; i < totalQuestions; i++) {
+            const isAnswered = currentTestType === 'mbti' ? 
+                answers[i] !== undefined : taAnswers[i] !== undefined;
+                
+            if (!isAnswered) {
+                const questionEl = document.getElementById(`q${i}`);
+                questionEl.classList.add('unanswered');
+            }
+        }
+    }
+
+    // 更新进度（移除禁用按钮的逻辑）
+    function updateProgress() {
+        let answered = 0;
+        const total = selectedQuestions.length;
+        
+        for (let i = 0; i < total; i++) {
+            const inputs = document.querySelectorAll(`input[name="q${i}"]:checked`);
+            if (inputs.length > 0) {
+                answered++;
+                
+                // 如果此题之前被标记为未答，移除标记
+                const questionEl = document.getElementById(`q${i}`);
+                if (questionEl && questionEl.classList.contains('unanswered')) {
+                    questionEl.classList.remove('unanswered');
+                }
+            }
+        }
+        
+        const progress = (answered / total) * 100;
+        progressBar.style.width = `${progress}%`;
+        progressText.textContent = `${Math.round(progress)}%`;
+        
+        // 移除了禁用提交按钮的逻辑
+        // 提交按钮现在始终可用
+    }
+
+
+        // 计算MBTI结果
+        function calculateMBTIResult() {
+            // 初始化维度分数
+            const scores = {
+                E: 0, I: 0,
+                S: 0, N: 0,
+                T: 0, F: 0,
+                J: 0, P: 0
+            };
+            
+            // 计算每个维度的分数
+            for (let i = 0; i < selectedQuestions.length; i++) {
+                const question = selectedQuestions[i];
+                const answer = answers[i];
+                
+                if (!question.axis || !answer) continue;
+                
+                const axis = question.axis;
+                const dir = question.dir;
+                
+                // 根据题目方向和答案计算分数
+                // 对于情景题，选项1-5对应分数1-5
+                // 对于普通题，选项1-5对应分数1-5
+                let score = answer;
+                
+                // 调整分数范围从1-5到-2到+2
+                score = score - 3;
+                
+                // 根据题目方向调整
+                if (dir === 1) {
+                    // 正向题目
+                    if (axis === 'EI') scores.E += score;
+                    else if (axis === 'SN') scores.S += score;
+                    else if (axis === 'TF') scores.T += score;
+                    else if (axis === 'JP') scores.J += score;
+                } else {
+                    // 反向题目
+                    if (axis === 'EI') scores.I += score;
+                    else if (axis === 'SN') scores.N += score;
+                    else if (axis === 'TF') scores.F += score;
+                    else if (axis === 'JP') scores.P += score;
+                }
+            }
+            
+            // 确定MBTI类型
+            const type = [
+                scores.E >= scores.I ? 'E' : 'I',
+                scores.S >= scores.N ? 'S' : 'N',
+                scores.T >= scores.F ? 'T' : 'F',
+                scores.J >= scores.P ? 'J' : 'P'
+            ].join('');
+            
+            // 计算每个维度的百分比
+            const percentages = {
+                EI: scores.E >= scores.I ? 
+                    Math.round((scores.E / (scores.E + Math.abs(scores.I)) + 0.5) * 50) : 
+                    Math.round((Math.abs(scores.I) / (Math.abs(scores.I) + scores.E) + 0.5) * 50),
+                SN: scores.S >= scores.N ? 
+                    Math.round((scores.S / (scores.S + Math.abs(scores.N)) + 0.5) * 50) : 
+                    Math.round((Math.abs(scores.N) / (Math.abs(scores.N) + scores.S) + 0.5) * 50),
+                TF: scores.T >= scores.F ? 
+                    Math.round((scores.T / (scores.T + Math.abs(scores.F)) + 0.5) * 50) : 
+                    Math.round((Math.abs(scores.F) / (Math.abs(scores.F) + scores.T) + 0.5) * 50),
+                JP: scores.J >= scores.P ? 
+                    Math.round((scores.J / (scores.J + Math.abs(scores.P)) + 0.5) * 50) : 
+                    Math.round((Math.abs(scores.P) / (Math.abs(scores.P) + scores.J) + 0.5) * 50)
+            };
+            
+            // 显示结果
+            displayMBTIResult(type, percentages, scores);
+        }
+
+        // 显示MBTI结果
+        function displayMBTIResult(type, percentages, scores) {
+            // 更新结果条
+            const barsContainer = document.getElementById('bars');
+            barsContainer.innerHTML = `
+                <div class="bar">
+                    <div class="bar-title">
+                        <span>外向(E) - 内向(I)</span>
+                        <span>${type[0]}: ${percentages.EI}%</span>
+                    </div>
+                    <div class="bar-inner" style="width: ${type[0] === 'E' ? percentages.EI : 100 - percentages.EI}%"></div>
+                </div>
+                <div class="bar">
+                    <div class="bar-title">
+                        <span>实感(S) - 直觉(N)</span>
+                        <span>${type[1]}: ${percentages.SN}%</span>
+                    </div>
+                    <div class="bar-inner" style="width: ${type[1] === 'S' ? percentages.SN : 100 - percentages.SN}%"></div>
+                </div>
+                <div class="bar">
+                    <div class="bar-title">
+                        <span>思考(T) - 情感(F)</span>
+                        <span>${type[2]}: ${percentages.TF}%</span>
+                    </div>
+                    <div class="bar-inner" style="width: ${type[2] === 'T' ? percentages.TF : 100 - percentages.TF}%"></div>
+                </div>
+                <div class="bar">
+                    <div class="bar-title">
+                        <span>判断(J) - 感知(P)</span>
+                        <span>${type[3]}: ${percentages.JP}%</span>
+                    </div>
+                    <div class="bar-inner" style="width: ${type[3] === 'J' ? percentages.JP : 100 - percentages.JP}%"></div>
+                </div>
+            `;
+            
+            // 更新摘要
+            const summaryContainer = document.getElementById('summary');
+            summaryContainer.innerHTML = `
+                <h3>你的MBTI类型是: <strong>${type}</strong></h3>
+                <p>基于你的答题模式分析，这个类型反映了你的性格偏好。</p>
+                <div class="button-row">
+                    <button class="btn" id="retakeBtn">
+                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M23 4v6h-6M1 20v-6h6"/>
+                            <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+                        </svg>
+                        重新测试
+                    </button>
+                    <button class="btn btn-secondary" id="detailsBtn">
+                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 16v-4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        查看详情
+                    </button>
+                </div>
+                <div class="details" id="typeDetails">
+                    <h4>${type} 类型详解</h4>
+                    <p>这里将显示关于 ${type} 类型的详细描述，包括性格特点、职业倾向、人际关系建议等内容。</p>
+                    <p>由于这是一个演示版本，完整类型描述需要接入专业的MBTI类型数据库。</p>
+                </div>
+            `;
+            
+            // 更新洞察部分
+            const insightsContainer = document.getElementById('insights');
+            insightsContainer.innerHTML = `
+                <div class="insight-section">
+                    <div class="insight-title">测试洞察</div>
+                    <p>基于你的答题模式，我们发现：</p>
+                    <ul>
+                        <li>你在 ${type[0] === 'E' ? '外向' : '内向'} 维度表现明显</li>
+                        <li>你的 ${type[1] === 'S' ? '实感' : '直觉'} 偏好较为突出</li>
+                        <li>在决策时你更倾向于 ${type[2] === 'T' ? '思考' : '情感'}</li>
+                        <li>你的生活方式更偏向 ${type[3] === 'J' ? '判断' : '感知'}</li>
+                    </ul>
+                </div>
+            `;
+            
+            // 添加事件监听器
+            document.getElementById('retakeBtn').addEventListener('click', startTest);
+            document.getElementById('detailsBtn').addEventListener('click', function() {
+                const details = document.getElementById('typeDetails');
+                details.classList.toggle('open');
+                this.textContent = details.classList.contains('open') ? '隐藏详情' : '查看详情';
+            });
+        }
+
+        // 计算-T/-A结果
+        function calculateTAResult() {
+            let totalScore = 0;
+            let maxScore = 0;
+            
+            for (let i = 0; i < selectedQuestions.length; i++) {
+                const question = selectedQuestions[i];
+                const answer = taAnswers[i];
+                
+                if (!answer) continue;
+                
+                // 计算分数 (1-5分，根据题目方向调整)
+                let score = answer;
+                if (question.dir === -1) {
+                    score = 6 - score; // 反向计分
+                }
+                
+                totalScore += score;
+                maxScore += 5;
+            }
+            
+            // 计算百分比
+            const percentage = Math.round((totalScore / maxScore) * 100);
+            
+            // 确定-T/-A类型
+            let taType;
+            let confidence;
+            
+            if (percentage >= 70) {
+                taType = '-A';
+                confidence = 'high';
+            } else if (percentage >= 40) {
+                taType = '-A/-T';
+                confidence = 'medium';
+            } else {
+                taType = '-T';
+                confidence = 'low';
+            }
+            
+            // 显示结果
+            displayTAResult(taType, percentage, confidence);
+        }
+
+        // 显示-T/-A结果
+        function displayTAResult(taType, percentage, confidence) {
+            taResult.style.display = 'block';
+            
+            taContent.innerHTML = `
+                <div class="bar">
+                    <div class="bar-title">
+                        <span>动荡(-T) - 自信(-A)</span>
+                        <span>${taType}: ${percentage}%</span>
+                    </div>
+                    <div class="bar-inner" style="width: ${percentage}%"></div>
+                </div>
+                <div class="summary">
+                    <p>你的-T/-A维度结果是: <strong>${taType}</strong> <span class="confidence-indicator confidence-${confidence}">${confidence === 'high' ? '高' : confidence === 'medium' ? '中' : '低'}置信度</span></p>
+                    <p>${taType === '-A' ? 
+                        '你表现出较高的自信和情绪稳定性，能够较好地应对压力和挑战。' : 
+                        taType === '-T' ? 
+                        '你倾向于自我批评，在压力下容易感到焦虑，需要更多自我肯定。' : 
+                        '你在自信和情绪稳定性方面表现中等，有时自信，有时会自我怀疑。'
+                    }</p>
+                </div>
+                <button class="btn" id="taRetakeBtn">
+                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 4v6h-6M1 20v-6h6"/>
+                        <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+                    </svg>
+                    重新测试-T/-A
+                </button>
+            `;
+            
+            // 添加事件监听器
+            document.getElementById('taRetakeBtn').addEventListener('click', startTATest);
+        }
+    </script>
+</body>
+</html>
